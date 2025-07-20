@@ -57,8 +57,8 @@ const App: React.FC = () => {
     const stage = e.target.getStage();
     if (!stage || !selectedTool) return;
 
-    // Don't create shape if clicking on existing shape
-    if (e.target !== stage) return;
+    // Don't create shape if clicking on existing shape (but allow clicking on image)
+    if (e.target !== stage && e.target.getClassName() !== 'Image') return;
 
     const pos = stage.getPointerPosition();
     if (!pos) return;
@@ -266,6 +266,7 @@ const App: React.FC = () => {
                 image={uploadedImage}
                 width={stageSize.width}
                 height={stageSize.height}
+                listening={true}
               />
             )}
 
