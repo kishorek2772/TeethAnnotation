@@ -64,18 +64,18 @@ const App: React.FC = () => {
     if (!pos) return;
 
     if (selectedTool === 'circle') {
-      // Create circle immediately
+      // Start drawing circle
       const newShape: Shape = {
         id: Date.now().toString(),
         type: 'circle',
         x: pos.x,
         y: pos.y,
-        radius: 20,
+        radius: 0,
         comment: '',
         showComment: false,
       };
-      setShapes(prev => [...prev, newShape]);
-      setSelectedTool(null);
+      setCurrentShape(newShape);
+      setIsDrawing(true);
     } else if (selectedTool === 'rectangle') {
       // Start drawing rectangle
       const newShape: Shape = {
@@ -94,7 +94,7 @@ const App: React.FC = () => {
   };
 
   const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!isDrawing || !currentShape || selectedTool !== 'rectangle') return;
+    if (!isDrawing || !currentShape) return;
 
     const stage = e.target.getStage();
     if (!stage) return;
@@ -102,24 +102,45 @@ const App: React.FC = () => {
     const pos = stage.getPointerPosition();
     if (!pos) return;
 
-    const width = pos.x - currentShape.x;
-    const height = pos.y - currentShape.y;
+    if (selectedTool === 'circle') {
+      // Calculate radius based on distance from start point
+      const deltaX = pos.x - currentShape.x;
+      const deltaY = pos.y - currentShape.y;
+      const radius = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    setCurrentShape({
-      ...currentShape,
-      width: Math.abs(width),
-      height: Math.abs(height),
-      x: width < 0 ? pos.x : currentShape.x,
-      y: height < 0 ? pos.y : currentShape.y,
-    });
+      setCurrentShape({
+        ...currentShape,
+        radius: radius,
+      });
+    } else if (selectedTool === 'rectangle') {
+      const width = pos.x - currentShape.x;
+      const height = pos.y - currentShape.y;
+
+      setCurrentShape({
+        ...currentShape,
+        width: Math.abs(width),
+        height: Math.abs(height),
+        x: width < 0 ? pos.x : currentShape.x,
+        y: height < 0 ? pos.y : currentShape.y,
+      });
+    }
   };
 
   const handleStageMouseUp = () => {
     if (!isDrawing || !currentShape) return;
 
-    // Only add rectangle if it has some size
-    if (currentShape.width && currentShape.height && 
-        currentShape.width > 5 && currentShape.height > 5) {
+    // Only add shape if it has some size
+    let shouldAdd = false;
+    
+    if (currentShape.type === 'circle' && currentShape.radius && currentShape.radius > 5) {
+      shouldAdd = true;
+    } else if (currentShape.type === 'rectangle' && 
+               currentShape.width && currentShape.height && 
+               currentShape.width > 5 && currentShape.height > 5) {
+      shouldAdd = true;
+    }
+
+    if (shouldAdd) {
       setShapes(prev => [...prev, currentShape]);
     }
 
@@ -331,17 +352,31 @@ const App: React.FC = () => {
             ))}
 
             {/* Render current shape being drawn */}
-            {isDrawing && currentShape && currentShape.type === 'rectangle' && (
-              <Rect
-                x={currentShape.x}
-                y={currentShape.y}
-                width={currentShape.width || 0}
-                height={currentShape.height || 0}
-                fill="rgba(0, 0, 255, 0.2)"
-                stroke="#0000ff"
-                strokeWidth={2}
-                dash={[5, 5]}
-              />
+            {isDrawing && currentShape && (
+              <>
+                {currentShape.type === 'circle' ? (
+                  <Circle
+                    x={currentShape.x}
+                    y={currentShape.y}
+                    radius={currentShape.radius || 0}
+                    fill="rgba(255, 0, 0, 0.2)"
+                    stroke="#ff0000"
+                    strokeWidth={2}
+                    dash={[5, 5]}
+                  />
+                ) : (
+                  <Rect
+                    x={currentShape.x}
+                    y={currentShape.y}
+                    width={currentShape.width || 0}
+                    height={currentShape.height || 0}
+                    fill="rgba(0, 0, 255, 0.2)"
+                    stroke="#0000ff"
+                    strokeWidth={2}
+                    dash={[5, 5]}
+                  />
+                )}
+              </>
             )}
           </Layer>
         </Stage>
