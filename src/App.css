@@ -8,7 +8,7 @@
 .header {
   text-align: center;
   color: white;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .header h1 {
@@ -22,59 +22,72 @@
   opacity: 0.9;
 }
 
+.controls-top {
+  max-width: 1000px;
+  margin: 0 auto 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.upload-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.tools-section {
+  flex: 2;
+  min-width: 300px;
+}
+
+.tools-section h4 {
+  color: #374151;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
 .canvas-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  position: relative;
 }
 
 .konva-stage {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 2px solid #e5e7eb;
 }
 
-.controls {
-  max-width: 800px;
+.upload-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.2rem;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 2px dashed #d1d5db;
+}
+
+.controls-bottom {
+  max-width: 1000px;
   margin: 0 auto;
   background: white;
   border-radius: 12px;
   padding: 25px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
-
-.control-section {
-  margin-bottom: 25px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.control-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.control-section h3 {
-  color: #374151;
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-}
-
-.control-section h4 {
-  color: #6b7280;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-}
-
-.tooth-status {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-.status-healthy { color: #10b981; }
-.status-cavity { color: #ef4444; }
-.status-filled { color: #14b8a6; }
-.status-missing { color: #6b7280; }
 
 .button-group {
   display: flex;
@@ -94,34 +107,28 @@
   letter-spacing: 0.5px;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn:not(:disabled):hover {
+.btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.btn-healthy {
+.btn-upload {
   background: #10b981;
   color: white;
+  font-size: 1rem;
+  padding: 12px 24px;
 }
 
-.btn-cavity {
-  background: #ef4444;
-  color: white;
+.btn-tool {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
 }
 
-.btn-filled {
-  background: #14b8a6;
+.btn-active {
+  background: #3b82f6;
   color: white;
-}
-
-.btn-missing {
-  background: #6b7280;
-  color: white;
+  border: 2px solid #3b82f6;
 }
 
 .btn-primary {
@@ -129,40 +136,117 @@
   color: white;
 }
 
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: white;
+}
+
 .btn-export {
   background: #8b5cf6;
   color: white;
-  font-size: 1rem;
-  padding: 12px 24px;
 }
 
-.annotation-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+.btn-delete {
+  background: #ef4444;
+  color: white;
+  padding: 5px 10px;
+  font-size: 0.8rem;
 }
 
-.annotation-input {
-  flex: 1;
-  min-width: 200px;
-  padding: 10px 15px;
+.comment-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.comment-box h4 {
+  color: #374151;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.comment-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 0.9rem;
-  transition: border-color 0.2s ease;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 15px;
 }
 
-.annotation-input:focus {
+.comment-textarea:focus {
   outline: none;
   border-color: #3b82f6;
 }
 
-.instruction {
-  color: #f59e0b;
+.comment-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.shapes-list {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.shapes-list h4 {
+  color: #374151;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.no-shapes {
+  color: #6b7280;
   font-style: italic;
-  margin-top: 10px;
+  text-align: center;
+  padding: 20px;
+}
+
+.shapes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.shape-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.shape-info {
+  color: #374151;
   font-size: 0.9rem;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -174,21 +258,25 @@
     font-size: 2rem;
   }
   
-  .konva-stage {
-    transform: scale(0.8);
-    transform-origin: center;
+  .controls-top {
+    flex-direction: column;
+    align-items: stretch;
   }
   
   .button-group {
     justify-content: center;
   }
   
-  .annotation-controls {
-    flex-direction: column;
-    align-items: stretch;
+  .comment-box {
+    min-width: 300px;
+    margin: 20px;
   }
   
-  .annotation-input {
-    min-width: auto;
+  .shapes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
   }
 }

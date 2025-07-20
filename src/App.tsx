@@ -1,118 +1,144 @@
 import React, { useState, useRef } from 'react';
-import { Stage, Layer, Circle, Text, Group } from 'react-konva';
+import { Stage, Layer, Circle, Rect, Text, Group, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
 import './App.css';
 
-interface ToothData {
-  id: number;
-  status: 'healthy' | 'cavity' | 'filled' | 'missing';
-  x: number;
-  y: number;
-}
-
-interface Annotation {
+interface Shape {
   id: string;
-  text: string;
+  type: 'circle' | 'rectangle';
   x: number;
   y: number;
+  width?: number;
+  height?: number;
+  radius?: number;
+  comment: string;
+  showComment: boolean;
 }
 
 const App: React.FC = () => {
-  const [selectedTooth, setSelectedTooth] = useState<number | null>(null);
-  const [teeth, setTeeth] = useState<ToothData[]>(() => {
-    const initialTeeth: ToothData[] = [];
-    
-    // Upper teeth (1-16)
-    for (let i = 1; i <= 16; i++) {
-      initialTeeth.push({
-        id: i,
-        status: 'healthy',
-        x: 50 + (i - 1) * 45,
-        y: 100
-      });
-    }
-    
-    // Lower teeth (17-32)
-    for (let i = 17; i <= 32; i++) {
-      initialTeeth.push({
-        id: i,
-        status: 'healthy',
-        x: 50 + (32 - i) * 45,
-        y: 200
-      });
-    }
-    
-    return initialTeeth;
-  });
-
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [annotationText, setAnnotationText] = useState('');
-  const [isAddingAnnotation, setIsAddingAnnotation] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<HTMLImageElement | null>(null);
+  const [shapes, setShapes] = useState<Shape[]>([]);
+  const [selectedTool, setSelectedTool] = useState<'circle' | 'rectangle' | null>(null);
+  const [selectedShape, setSelectedShape] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
-  const getToothColor = (tooth: ToothData) => {
-    if (selectedTooth === tooth.id) return '#3b82f6';
-    
-    switch (tooth.status) {
-      case 'healthy': return '#ffffff';
-      case 'cavity': return '#ef4444';
-      case 'filled': return '#14b8a6';
-      case 'missing': return '#6b7280';
-      default: return '#ffffff';
-    }
-  };
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleToothClick = (toothId: number) => {
-    setSelectedTooth(toothId);
-  };
-
-  const updateToothStatus = (status: ToothData['status']) => {
-    if (selectedTooth === null) return;
-    
-    setTeeth(prev => prev.map(tooth => 
-      tooth.id === selectedTooth 
-        ? { ...tooth, status }
-        : tooth
-    ));
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Calculate stage size based on image dimensions
+        const maxWidth = 800;
+        const maxHeight = 600;
+        const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+        
+        setStageSize({
+          width: img.width * ratio,
+          height: img.height * ratio
+        });
+        
+        setUploadedImage(img);
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!isAddingAnnotation || !annotationText.trim()) return;
-    
     const stage = e.target.getStage();
-    if (!stage) return;
-    
+    if (!stage || !selectedTool) return;
+
+    // Don't create shape if clicking on existing shape
+    if (e.target !== stage) return;
+
     const pos = stage.getPointerPosition();
     if (!pos) return;
 
-    const newAnnotation: Annotation = {
+    const newShape: Shape = {
       id: Date.now().toString(),
-      text: annotationText,
+      type: selectedTool,
       x: pos.x,
-      y: pos.y
+      y: pos.y,
+      comment: '',
+      showComment: false,
+      ...(selectedTool === 'circle' 
+        ? { radius: 20 } 
+        : { width: 40, height: 30 }
+      )
     };
 
-    setAnnotations(prev => [...prev, newAnnotation]);
-    setAnnotationText('');
-    setIsAddingAnnotation(false);
+    setShapes(prev => [...prev, newShape]);
+    setSelectedTool(null); // Deselect tool after creating shape
   };
 
-  const handleAnnotationClick = (annotationId: string) => {
-    setAnnotations(prev => prev.filter(ann => ann.id !== annotationId));
+  const handleShapeClick = (shapeId: string) => {
+    setSelectedShape(shapeId);
+    setShowCommentBox(true);
+    const shape = shapes.find(s => s.id === shapeId);
+    setCommentText(shape?.comment || '');
   };
 
-  const addAnnotation = () => {
-    if (!annotationText.trim()) return;
-    setIsAddingAnnotation(true);
+  const handleShapeDragEnd = (shapeId: string, newPos: { x: number; y: number }) => {
+    setShapes(prev => prev.map(shape => 
+      shape.id === shapeId 
+        ? { ...shape, x: newPos.x, y: newPos.y }
+        : shape
+    ));
+  };
+
+  const applyComment = () => {
+    if (!selectedShape) return;
+
+    setShapes(prev => prev.map(shape => 
+      shape.id === selectedShape 
+        ? { ...shape, comment: commentText, showComment: true }
+        : shape
+    ));
+
+    setShowCommentBox(false);
+    setSelectedShape(null);
+    setCommentText('');
+  };
+
+  const deleteShape = (shapeId: string) => {
+    setShapes(prev => prev.filter(shape => shape.id !== shapeId));
+    if (selectedShape === shapeId) {
+      setShowCommentBox(false);
+      setSelectedShape(null);
+      setCommentText('');
+    }
+  };
+
+  const clearAll = () => {
+    setShapes([]);
+    setShowCommentBox(false);
+    setSelectedShape(null);
+    setCommentText('');
   };
 
   const exportData = () => {
     const data = {
-      teeth: teeth.map(tooth => ({
-        id: tooth.id,
-        status: tooth.status
+      shapes: shapes.map(shape => ({
+        id: shape.id,
+        type: shape.type,
+        x: shape.x,
+        y: shape.y,
+        width: shape.width,
+        height: shape.height,
+        radius: shape.radius,
+        comment: shape.comment
       })),
-      annotations: annotations
+      imageInfo: uploadedImage ? {
+        width: uploadedImage.width,
+        height: uploadedImage.height
+      } : null
     };
     
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -124,177 +150,199 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const selectedToothData = teeth.find(tooth => tooth.id === selectedTooth);
-
   return (
     <div className="app">
       <div className="header">
-        <h1>🦷 Teeth Annotation Tool</h1>
-        <p>Click on teeth to select them, then use the controls below to annotate</p>
+        <h1>🦷 Teeth Image Annotation Tool</h1>
+        <p>Upload a teeth image, add shapes, and annotate with comments</p>
+      </div>
+
+      <div className="controls-top">
+        <div className="upload-section">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="btn btn-upload"
+          >
+            📁 Upload Teeth Image
+          </button>
+        </div>
+
+        <div className="tools-section">
+          <h4>Annotation Tools</h4>
+          <div className="button-group">
+            <button 
+              onClick={() => setSelectedTool('circle')}
+              className={`btn ${selectedTool === 'circle' ? 'btn-active' : 'btn-tool'}`}
+            >
+              ⭕ Circle
+            </button>
+            <button 
+              onClick={() => setSelectedTool('rectangle')}
+              className={`btn ${selectedTool === 'rectangle' ? 'btn-active' : 'btn-tool'}`}
+            >
+              ⬜ Rectangle
+            </button>
+            <button 
+              onClick={() => setSelectedTool(null)}
+              className="btn btn-secondary"
+            >
+              ✋ Select
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="canvas-container">
         <Stage
           ref={stageRef}
-          width={800}
-          height={350}
+          width={stageSize.width}
+          height={stageSize.height}
           onClick={handleStageClick}
           className="konva-stage"
         >
           <Layer>
-            {/* Upper teeth label */}
-            <Text
-              text="Upper Teeth"
-              x={350}
-              y={60}
-              fontSize={16}
-              fontFamily="Arial"
-              fill="#374151"
-              align="center"
-            />
-            
-            {/* Lower teeth label */}
-            <Text
-              text="Lower Teeth"
-              x={350}
-              y={240}
-              fontSize={16}
-              fontFamily="Arial"
-              fill="#374151"
-              align="center"
-            />
+            {/* Render uploaded image */}
+            {uploadedImage && (
+              <KonvaImage
+                image={uploadedImage}
+                width={stageSize.width}
+                height={stageSize.height}
+              />
+            )}
 
-            {/* Render teeth */}
-            {teeth.map(tooth => (
-              <Group key={tooth.id}>
-                <Circle
-                  x={tooth.x}
-                  y={tooth.y}
-                  radius={18}
-                  fill={getToothColor(tooth)}
-                  stroke="#374151"
-                  strokeWidth={2}
-                  onClick={() => handleToothClick(tooth.id)}
-                  onTap={() => handleToothClick(tooth.id)}
-                  shadowColor="black"
-                  shadowBlur={3}
-                  shadowOpacity={0.3}
-                  shadowOffsetX={1}
-                  shadowOffsetY={1}
-                />
-                <Text
-                  text={tooth.id.toString()}
-                  x={tooth.x}
-                  y={tooth.y - 6}
-                  fontSize={12}
-                  fontFamily="Arial"
-                  fill={selectedTooth === tooth.id ? '#ffffff' : '#374151'}
-                  align="center"
-                  width={36}
-                  onClick={() => handleToothClick(tooth.id)}
-                  onTap={() => handleToothClick(tooth.id)}
-                />
-              </Group>
-            ))}
+            {/* Render shapes */}
+            {shapes.map(shape => (
+              <Group key={shape.id}>
+                {shape.type === 'circle' ? (
+                  <Circle
+                    x={shape.x}
+                    y={shape.y}
+                    radius={shape.radius || 20}
+                    fill="rgba(255, 0, 0, 0.3)"
+                    stroke="#ff0000"
+                    strokeWidth={2}
+                    draggable
+                    onClick={() => handleShapeClick(shape.id)}
+                    onDragEnd={(e) => handleShapeDragEnd(shape.id, e.target.position())}
+                  />
+                ) : (
+                  <Rect
+                    x={shape.x}
+                    y={shape.y}
+                    width={shape.width || 40}
+                    height={shape.height || 30}
+                    fill="rgba(0, 0, 255, 0.3)"
+                    stroke="#0000ff"
+                    strokeWidth={2}
+                    draggable
+                    onClick={() => handleShapeClick(shape.id)}
+                    onDragEnd={(e) => handleShapeDragEnd(shape.id, e.target.position())}
+                  />
+                )}
 
-            {/* Render annotations */}
-            {annotations.map(annotation => (
-              <Group key={annotation.id}>
-                <Circle
-                  x={annotation.x}
-                  y={annotation.y}
-                  radius={4}
-                  fill="#f59e0b"
-                  stroke="#d97706"
-                  strokeWidth={1}
-                />
-                <Text
-                  text={annotation.text}
-                  x={annotation.x + 8}
-                  y={annotation.y - 8}
-                  fontSize={12}
-                  fontFamily="Arial"
-                  fill="#374151"
-                  padding={4}
-                  onClick={() => handleAnnotationClick(annotation.id)}
-                  onTap={() => handleAnnotationClick(annotation.id)}
-                />
+                {/* Render comment if exists */}
+                {shape.showComment && shape.comment && (
+                  <Group>
+                    <Rect
+                      x={shape.x + (shape.radius || shape.width || 40) + 10}
+                      y={shape.y - 10}
+                      width={Math.max(shape.comment.length * 8, 100)}
+                      height={30}
+                      fill="white"
+                      stroke="#333"
+                      strokeWidth={1}
+                      cornerRadius={5}
+                      shadowColor="black"
+                      shadowBlur={5}
+                      shadowOpacity={0.3}
+                    />
+                    <Text
+                      text={shape.comment}
+                      x={shape.x + (shape.radius || shape.width || 40) + 15}
+                      y={shape.y - 5}
+                      fontSize={12}
+                      fontFamily="Arial"
+                      fill="#333"
+                      width={Math.max(shape.comment.length * 8, 90)}
+                    />
+                  </Group>
+                )}
               </Group>
             ))}
           </Layer>
         </Stage>
+
+        {!uploadedImage && (
+          <div className="upload-placeholder">
+            <p>📷 Upload a teeth image to start annotating</p>
+          </div>
+        )}
       </div>
 
-      <div className="controls">
-        <div className="control-section">
-          <h3>Selected Tooth: {selectedTooth ? `#${selectedTooth}` : 'None'}</h3>
-          {selectedToothData && (
-            <p className="tooth-status">
-              Current Status: <span className={`status-${selectedToothData.status}`}>
-                {selectedToothData.status.charAt(0).toUpperCase() + selectedToothData.status.slice(1)}
-              </span>
-            </p>
-          )}
-        </div>
-
-        <div className="control-section">
-          <h4>Tooth Status</h4>
-          <div className="button-group">
-            <button 
-              onClick={() => updateToothStatus('healthy')}
-              disabled={!selectedTooth}
-              className="btn btn-healthy"
-            >
-              Healthy
+      {/* Comment Box */}
+      {showCommentBox && (
+        <div className="comment-box">
+          <h4>Add Comment</h4>
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Enter your comment here..."
+            className="comment-textarea"
+          />
+          <div className="comment-actions">
+            <button onClick={applyComment} className="btn btn-primary">
+              Apply Comment
             </button>
             <button 
-              onClick={() => updateToothStatus('cavity')}
-              disabled={!selectedTooth}
-              className="btn btn-cavity"
+              onClick={() => {
+                setShowCommentBox(false);
+                setSelectedShape(null);
+                setCommentText('');
+              }}
+              className="btn btn-secondary"
             >
-              Cavity
-            </button>
-            <button 
-              onClick={() => updateToothStatus('filled')}
-              disabled={!selectedTooth}
-              className="btn btn-filled"
-            >
-              Filled
-            </button>
-            <button 
-              onClick={() => updateToothStatus('missing')}
-              disabled={!selectedTooth}
-              className="btn btn-missing"
-            >
-              Missing
+              Cancel
             </button>
           </div>
         </div>
+      )}
 
-        <div className="control-section">
-          <h4>Annotations</h4>
-          <div className="annotation-controls">
-            <input
-              type="text"
-              value={annotationText}
-              onChange={(e) => setAnnotationText(e.target.value)}
-              placeholder="Enter annotation text..."
-              className="annotation-input"
-            />
-            <button 
-              onClick={addAnnotation}
-              disabled={!annotationText.trim()}
-              className="btn btn-primary"
-            >
-              Add Annotation
-            </button>
-          </div>
-          {isAddingAnnotation && (
-            <p className="instruction">Click on the canvas to place the annotation</p>
+      <div className="controls-bottom">
+        <div className="shapes-list">
+          <h4>Annotations ({shapes.length})</h4>
+          {shapes.length === 0 ? (
+            <p className="no-shapes">No annotations yet. Select a tool and click on the image to add shapes.</p>
+          ) : (
+            <div className="shapes-grid">
+              {shapes.map(shape => (
+                <div key={shape.id} className="shape-item">
+                  <span className="shape-info">
+                    {shape.type === 'circle' ? '⭕' : '⬜'} 
+                    {shape.comment || 'No comment'}
+                  </span>
+                  <button 
+                    onClick={() => deleteShape(shape.id)}
+                    className="btn btn-delete"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        <div className="control-section">
+        <div className="action-buttons">
+          <button onClick={clearAll} className="btn btn-warning">
+            Clear All
+          </button>
           <button onClick={exportData} className="btn btn-export">
             Export Data
           </button>
