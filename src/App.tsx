@@ -23,6 +23,8 @@ const App: React.FC = () => {
   const [commentText, setCommentText] = useState('');
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentShape, setCurrentShape] = useState<Shape | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
@@ -61,21 +63,69 @@ const App: React.FC = () => {
     const pos = stage.getPointerPosition();
     if (!pos) return;
 
-    const newShape: Shape = {
-      id: Date.now().toString(),
-      type: selectedTool,
-      x: pos.x,
-      y: pos.y,
-      comment: '',
-      showComment: false,
-      ...(selectedTool === 'circle' 
-        ? { radius: 20 } 
-        : { width: 40, height: 30 }
-      )
-    };
+    if (selectedTool === 'circle') {
+      // Create circle immediately
+      const newShape: Shape = {
+        id: Date.now().toString(),
+        type: 'circle',
+        x: pos.x,
+        y: pos.y,
+        radius: 20,
+        comment: '',
+        showComment: false,
+      };
+      setShapes(prev => [...prev, newShape]);
+      setSelectedTool(null);
+    } else if (selectedTool === 'rectangle') {
+      // Start drawing rectangle
+      const newShape: Shape = {
+        id: Date.now().toString(),
+        type: 'rectangle',
+        x: pos.x,
+        y: pos.y,
+        width: 0,
+        height: 0,
+        comment: '',
+        showComment: false,
+      };
+      setCurrentShape(newShape);
+      setIsDrawing(true);
+    }
+  };
 
-    setShapes(prev => [...prev, newShape]);
-    setSelectedTool(null); // Deselect tool after creating shape
+  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (!isDrawing || !currentShape || selectedTool !== 'rectangle') return;
+
+    const stage = e.target.getStage();
+    if (!stage) return;
+
+    const pos = stage.getPointerPosition();
+    if (!pos) return;
+
+    const width = pos.x - currentShape.x;
+    const height = pos.y - currentShape.y;
+
+    setCurrentShape({
+      ...currentShape,
+      width: Math.abs(width),
+      height: Math.abs(height),
+      x: width < 0 ? pos.x : currentShape.x,
+      y: height < 0 ? pos.y : currentShape.y,
+    });
+  };
+
+  const handleStageMouseUp = () => {
+    if (!isDrawing || !currentShape) return;
+
+    // Only add rectangle if it has some size
+    if (currentShape.width && currentShape.height && 
+        currentShape.width > 5 && currentShape.height > 5) {
+      setShapes(prev => [...prev, currentShape]);
+    }
+
+    setIsDrawing(false);
+    setCurrentShape(null);
+    setSelectedTool(null);
   };
 
   const handleShapeClick = (shapeId: string) => {
@@ -205,6 +255,8 @@ const App: React.FC = () => {
           width={stageSize.width}
           height={stageSize.height}
           onClick={handleStageClick}
+          onMouseMove={handleStageMouseMove}
+          onMouseUp={handleStageMouseUp}
           className="konva-stage"
         >
           <Layer>
@@ -276,6 +328,20 @@ const App: React.FC = () => {
                 )}
               </Group>
             ))}
+
+            {/* Render current shape being drawn */}
+            {isDrawing && currentShape && currentShape.type === 'rectangle' && (
+              <Rect
+                x={currentShape.x}
+                y={currentShape.y}
+                width={currentShape.width || 0}
+                height={currentShape.height || 0}
+                fill="rgba(0, 0, 255, 0.2)"
+                stroke="#0000ff"
+                strokeWidth={2}
+                dash={[5, 5]}
+              />
+            )}
           </Layer>
         </Stage>
 
