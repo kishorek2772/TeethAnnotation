@@ -1,0 +1,194 @@
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.konva-stage {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.controls {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.control-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.control-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.control-section h3 {
+  color: #374151;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.control-section h4 {
+  color: #6b7280;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.tooth-status {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.status-healthy { color: #10b981; }
+.status-cavity { color: #ef4444; }
+.status-filled { color: #14b8a6; }
+.status-missing { color: #6b7280; }
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-healthy {
+  background: #10b981;
+  color: white;
+}
+
+.btn-cavity {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-filled {
+  background: #14b8a6;
+  color: white;
+}
+
+.btn-missing {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-export {
+  background: #8b5cf6;
+  color: white;
+  font-size: 1rem;
+  padding: 12px 24px;
+}
+
+.annotation-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.annotation-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.annotation-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.instruction {
+  color: #f59e0b;
+  font-style: italic;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .konva-stage {
+    transform: scale(0.8);
+    transform-origin: center;
+  }
+  
+  .button-group {
+    justify-content: center;
+  }
+  
+  .annotation-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .annotation-input {
+    min-width: auto;
+  }
+}
