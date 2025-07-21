@@ -16,6 +16,7 @@ interface Shape {
 }
 
 const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<'doctor' | 'patient'>('doctor');
   const [uploadedImage, setUploadedImage] = useState<HTMLImageElement | null>(null);
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [selectedTool, setSelectedTool] = useState<'circle' | 'rectangle' | null>(null);
@@ -54,6 +55,9 @@ const App: React.FC = () => {
   };
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    // Disable shape creation in patient view
+    if (currentView === 'patient') return;
+    
     const stage = e.target.getStage();
     if (!stage || !selectedTool) return;
 
@@ -94,6 +98,9 @@ const App: React.FC = () => {
   };
 
   const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    // Disable drawing in patient view
+    if (currentView === 'patient') return;
+    
     if (!isDrawing || !currentShape) return;
 
     const stage = e.target.getStage();
@@ -127,6 +134,9 @@ const App: React.FC = () => {
   };
 
   const handleStageMouseUp = () => {
+    // Disable drawing in patient view
+    if (currentView === 'patient') return;
+    
     if (!isDrawing || !currentShape) return;
 
     // Only add shape if it has some size
@@ -150,6 +160,16 @@ const App: React.FC = () => {
   };
 
   const handleShapeClick = (shapeId: string) => {
+    // In patient view, just toggle comment visibility
+    if (currentView === 'patient') {
+      setShapes(prev => prev.map(shape => 
+        shape.id === shapeId 
+          ? { ...shape, showComment: !shape.showComment }
+          : shape
+      ));
+      return;
+    }
+    
     setSelectedShape(shapeId);
     setShowCommentBox(true);
     const shape = shapes.find(s => s.id === shapeId);
@@ -157,6 +177,9 @@ const App: React.FC = () => {
   };
 
   const handleShapeDragEnd = (shapeId: string, newPos: { x: number; y: number }) => {
+    // Disable dragging in patient view
+    if (currentView === 'patient') return;
+    
     setShapes(prev => prev.map(shape => 
       shape.id === shapeId 
         ? { ...shape, x: newPos.x, y: newPos.y }
@@ -224,51 +247,81 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <div className="header">
-        <h1>🦷 Teeth Image Annotation Tool</h1>
-        <p>Upload a teeth image, add shapes, and annotate with comments</p>
-      </div>
-
-      <div className="controls-top">
-        <div className="upload-section">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-          />
+        <div className="view-switcher">
           <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="btn btn-upload"
+            onClick={() => setCurrentView('doctor')}
+            className={`btn ${currentView === 'doctor' ? 'btn-active' : 'btn-tool'}`}
           >
-            📁 Upload Teeth Image
+            👨‍⚕️ Doctor View
+          </button>
+          <button 
+            onClick={() => setCurrentView('patient')}
+            className={`btn ${currentView === 'patient' ? 'btn-active' : 'btn-tool'}`}
+          >
+            🧑‍🦲 Patient View
           </button>
         </div>
+        <h1>🦷 {currentView === 'doctor' ? 'Teeth Annotation Tool' : 'Patient Consultation View'}</h1>
+        <p>
+          {currentView === 'doctor' 
+            ? 'Upload a teeth image, add shapes, and annotate with comments'
+            : 'View your annotated teeth image with doctor\'s comments'
+          }
+        </p>
+      </div>
 
-        <div className="tools-section">
-          <h4>Annotation Tools</h4>
-          <div className="button-group">
+      {currentView === 'doctor' && (
+        <div className="controls-top">
+          <div className="upload-section">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+            />
             <button 
-              onClick={() => setSelectedTool('circle')}
-              className={`btn ${selectedTool === 'circle' ? 'btn-active' : 'btn-tool'}`}
+              onClick={() => fileInputRef.current?.click()}
+              className="btn btn-upload"
             >
-              ⭕ Circle
-            </button>
-            <button 
-              onClick={() => setSelectedTool('rectangle')}
-              className={`btn ${selectedTool === 'rectangle' ? 'btn-active' : 'btn-tool'}`}
-            >
-              ⬜ Rectangle
-            </button>
-            <button 
-              onClick={() => setSelectedTool(null)}
-              className="btn btn-secondary"
-            >
-              ✋ Select
+              📁 Upload Teeth Image
             </button>
           </div>
+
+          <div className="tools-section">
+            <h4>Annotation Tools</h4>
+            <div className="button-group">
+              <button 
+                onClick={() => setSelectedTool('circle')}
+                className={`btn ${selectedTool === 'circle' ? 'btn-active' : 'btn-tool'}`}
+              >
+                ⭕ Circle
+              </button>
+              <button 
+                onClick={() => setSelectedTool('rectangle')}
+                className={`btn ${selectedTool === 'rectangle' ? 'btn-active' : 'btn-tool'}`}
+              >
+                ⬜ Rectangle
+              </button>
+              <button 
+                onClick={() => setSelectedTool(null)}
+                className="btn btn-secondary"
+              >
+                ✋ Select
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {currentView === 'patient' && uploadedImage && (
+        <div className="patient-info">
+          <div className="patient-instructions">
+            <h3>📋 How to View Your Annotations</h3>
+            <p>Click on any highlighted area (circles or rectangles) to view the doctor's comments about that specific area of your teeth.</p>
+          </div>
+        </div>
+      )}
 
       <div className="canvas-container">
         <Stage
@@ -302,7 +355,7 @@ const App: React.FC = () => {
                     fill="rgba(255, 0, 0, 0.3)"
                     stroke="#ff0000"
                     strokeWidth={2}
-                    draggable
+                    draggable={currentView === 'doctor'}
                     onClick={() => handleShapeClick(shape.id)}
                     onDragEnd={(e) => handleShapeDragEnd(shape.id, e.target.position())}
                   />
@@ -315,14 +368,14 @@ const App: React.FC = () => {
                     fill="rgba(0, 0, 255, 0.3)"
                     stroke="#0000ff"
                     strokeWidth={2}
-                    draggable
+                    draggable={currentView === 'doctor'}
                     onClick={() => handleShapeClick(shape.id)}
                     onDragEnd={(e) => handleShapeDragEnd(shape.id, e.target.position())}
                   />
                 )}
 
                 {/* Render comment if exists */}
-                {shape.showComment && shape.comment && (
+                {((currentView === 'doctor' && shape.showComment) || (currentView === 'patient' && shape.showComment)) && shape.comment && (
                   <Group>
                     <Rect
                       x={shape.x + (shape.radius || shape.width || 40) + 10}
@@ -352,7 +405,7 @@ const App: React.FC = () => {
             ))}
 
             {/* Render current shape being drawn */}
-            {isDrawing && currentShape && (
+            {isDrawing && currentShape && currentView === 'doctor' && (
               <>
                 {currentShape.type === 'circle' ? (
                   <Circle
@@ -381,15 +434,21 @@ const App: React.FC = () => {
           </Layer>
         </Stage>
 
-        {!uploadedImage && (
+        {!uploadedImage && currentView === 'doctor' && (
           <div className="upload-placeholder">
             <p>📷 Upload a teeth image to start annotating</p>
+          </div>
+        )}
+
+        {!uploadedImage && currentView === 'patient' && (
+          <div className="upload-placeholder">
+            <p>👨‍⚕️ No teeth image available. Please switch to Doctor View to upload an image.</p>
           </div>
         )}
       </div>
 
       {/* Comment Box */}
-      {showCommentBox && (
+      {showCommentBox && currentView === 'doctor' && (
         <div className="comment-box">
           <h4>Add Comment</h4>
           <textarea
@@ -416,11 +475,48 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <div className="controls-bottom">
+      {currentView === 'doctor' && (
+        <div className="controls-bottom">
+          <div className="shapes-list">
+            <h4>Annotations ({shapes.length})</h4>
+            {shapes.length === 0 ? (
+              <p className="no-shapes">No annotations yet. Select a tool and click on the image to add shapes.</p>
+            ) : (
+              <div className="shapes-grid">
+                {shapes.map(shape => (
+                  <div key={shape.id} className="shape-item">
+                    <span className="shape-info">
+                      {shape.type === 'circle' ? '⭕' : '⬜'} 
+                      {shape.comment || 'No comment'}
+                    </span>
+                    <button 
+                      onClick={() => deleteShape(shape.id)}
+                      className="btn btn-delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="action-buttons">
+            <button onClick={clearAll} className="btn btn-warning">
+              Clear All
+            </button>
+            <button onClick={exportData} className="btn btn-export">
+              Export Data
+            </button>
+          </div>
+        </div>
+      )}
+
+      {currentView === 'patient' && (
         <div className="shapes-list">
-          <h4>Annotations ({shapes.length})</h4>
+          <h4>📝 Doctor's Annotations ({shapes.length})</h4>
           {shapes.length === 0 ? (
-            <p className="no-shapes">No annotations yet. Select a tool and click on the image to add shapes.</p>
+            <p className="no-shapes">No annotations available. Your doctor hasn't added any comments yet.</p>
           ) : (
             <div className="shapes-grid">
               {shapes.map(shape => (
@@ -430,26 +526,18 @@ const App: React.FC = () => {
                     {shape.comment || 'No comment'}
                   </span>
                   <button 
-                    onClick={() => deleteShape(shape.id)}
-                    className="btn btn-delete"
+                    onClick={() => handleShapeClick(shape.id)}
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.8rem', padding: '5px 10px' }}
                   >
-                    🗑️
+                    {shape.showComment ? '👁️ Hide' : '👁️ Show'}
                   </button>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        <div className="action-buttons">
-          <button onClick={clearAll} className="btn btn-warning">
-            Clear All
-          </button>
-          <button onClick={exportData} className="btn btn-export">
-            Export Data
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
