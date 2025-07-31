@@ -589,6 +589,12 @@ const App: React.FC = () => {
                   bold: false,
                   italic: false,
                   underline: false,
+                  fontSize: 14
+                });
+                setCommentStyle({
+                  bold: false,
+                  italic: false,
+                  underline: false,
                   fontSize: 12
                 });
               }}
