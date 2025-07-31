@@ -12,6 +12,12 @@ interface Shape {
   height?: number;
   radius?: number;
   comment: string;
+  commentStyle: {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    fontSize: number;
+  };
   showComment: boolean;
 }
 
@@ -22,6 +28,12 @@ const App: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<'circle' | 'rectangle' | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [commentStyle, setCommentStyle] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: 12
+  });
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
   const [isDrawing, setIsDrawing] = useState(false);
@@ -76,6 +88,12 @@ const App: React.FC = () => {
         y: pos.y,
         radius: 0,
         comment: '',
+        commentStyle: {
+          bold: false,
+          italic: false,
+          underline: false,
+          fontSize: 12
+        },
         showComment: false,
       };
       setCurrentShape(newShape);
@@ -90,6 +108,12 @@ const App: React.FC = () => {
         width: 0,
         height: 0,
         comment: '',
+        commentStyle: {
+          bold: false,
+          italic: false,
+          underline: false,
+          fontSize: 12
+        },
         showComment: false,
       };
       setCurrentShape(newShape);
@@ -174,6 +198,12 @@ const App: React.FC = () => {
     setShowCommentBox(true);
     const shape = shapes.find(s => s.id === shapeId);
     setCommentText(shape?.comment || '');
+    setCommentStyle(shape?.commentStyle || {
+      bold: false,
+      italic: false,
+      underline: false,
+      fontSize: 12
+    });
   };
 
   const handleShapeDragEnd = (shapeId: string, newPos: { x: number; y: number }) => {
@@ -192,13 +222,19 @@ const App: React.FC = () => {
 
     setShapes(prev => prev.map(shape => 
       shape.id === selectedShape 
-        ? { ...shape, comment: commentText, showComment: true }
+        ? { ...shape, comment: commentText, commentStyle: commentStyle, showComment: true }
         : shape
     ));
 
     setShowCommentBox(false);
     setSelectedShape(null);
     setCommentText('');
+    setCommentStyle({
+      bold: false,
+      italic: false,
+      underline: false,
+      fontSize: 12
+    });
   };
 
   const deleteShape = (shapeId: string) => {
@@ -207,6 +243,12 @@ const App: React.FC = () => {
       setShowCommentBox(false);
       setSelectedShape(null);
       setCommentText('');
+      setCommentStyle({
+        bold: false,
+        italic: false,
+        underline: false,
+        fontSize: 12
+      });
     }
   };
 
@@ -215,6 +257,12 @@ const App: React.FC = () => {
     setShowCommentBox(false);
     setSelectedShape(null);
     setCommentText('');
+    setCommentStyle({
+      bold: false,
+      italic: false,
+      underline: false,
+      fontSize: 12
+    });
   };
 
   const exportData = () => {
@@ -227,7 +275,8 @@ const App: React.FC = () => {
         width: shape.width,
         height: shape.height,
         radius: shape.radius,
-        comment: shape.comment
+        comment: shape.comment,
+        commentStyle: shape.commentStyle
       })),
       imageInfo: uploadedImage ? {
         width: uploadedImage.width,
@@ -394,10 +443,13 @@ const App: React.FC = () => {
                       text={shape.comment}
                       x={shape.x + (shape.radius || shape.width || 40) + 15}
                       y={shape.y - 5}
-                      fontSize={12}
+                      fontSize={shape.commentStyle.fontSize}
                       fontFamily="Arial"
                       fill="#333"
                       width={Math.max(shape.comment.length * 8, 90)}
+                      fontStyle={shape.commentStyle.italic ? 'italic' : 'normal'}
+                      textDecoration={shape.commentStyle.underline ? 'underline' : ''}
+                      fontVariant={shape.commentStyle.bold ? 'bold' : 'normal'}
                     />
                   </Group>
                 )}
@@ -451,11 +503,66 @@ const App: React.FC = () => {
       {showCommentBox && currentView === 'doctor' && (
         <div className="comment-box">
           <h4>Add Comment</h4>
+          
+          {/* Formatting Toolbar */}
+          <div className="formatting-toolbar">
+            <div className="format-group">
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, bold: !prev.bold }))}
+                className={`format-btn ${commentStyle.bold ? 'active' : ''}`}
+                title="Bold"
+              >
+                <strong>B</strong>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, italic: !prev.italic }))}
+                className={`format-btn ${commentStyle.italic ? 'active' : ''}`}
+                title="Italic"
+              >
+                <em>I</em>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, underline: !prev.underline }))}
+                className={`format-btn ${commentStyle.underline ? 'active' : ''}`}
+                title="Underline"
+              >
+                <u>U</u>
+              </button>
+            </div>
+            
+            <div className="format-group">
+              <label htmlFor="fontSize">Size:</label>
+              <select
+                id="fontSize"
+                value={commentStyle.fontSize}
+                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontSize: parseInt(e.target.value) }))}
+                className="font-size-select"
+              >
+                <option value={10}>10px</option>
+                <option value={12}>12px</option>
+                <option value={14}>14px</option>
+                <option value={16}>16px</option>
+                <option value={18}>18px</option>
+                <option value={20}>20px</option>
+                <option value={24}>24px</option>
+              </select>
+            </div>
+          </div>
+          
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Enter your comment here..."
             className="comment-textarea"
+            style={{
+              fontWeight: commentStyle.bold ? 'bold' : 'normal',
+              fontStyle: commentStyle.italic ? 'italic' : 'normal',
+              textDecoration: commentStyle.underline ? 'underline' : 'none',
+              fontSize: `${commentStyle.fontSize}px`
+            }}
           />
           <div className="comment-actions">
             <button onClick={applyComment} className="btn btn-primary">
@@ -466,6 +573,12 @@ const App: React.FC = () => {
                 setShowCommentBox(false);
                 setSelectedShape(null);
                 setCommentText('');
+                setCommentStyle({
+                  bold: false,
+                  italic: false,
+                  underline: false,
+                  fontSize: 12
+                });
               }}
               className="btn btn-secondary"
             >
