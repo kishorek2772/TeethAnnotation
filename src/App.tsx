@@ -18,6 +18,12 @@ interface Shape {
     underline: boolean;
     fontSize: number;
   };
+  commentStyle: {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    fontSize: number;
+  };
   showComment: boolean;
 }
 
@@ -28,6 +34,12 @@ const App: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<'circle' | 'rectangle' | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [commentStyle, setCommentStyle] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: 14
+  });
   const [commentStyle, setCommentStyle] = useState({
     bold: false,
     italic: false,
