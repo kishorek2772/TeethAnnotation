@@ -18,12 +18,6 @@ interface Shape {
     underline: boolean;
     fontSize: number;
   };
-  commentStyle: {
-    bold: boolean;
-    italic: boolean;
-    underline: boolean;
-    fontSize: number;
-  };
   showComment: boolean;
 }
 
@@ -34,12 +28,6 @@ const App: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<'circle' | 'rectangle' | null>(null);
   const [selectedShape, setSelectedShape] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
-  const [commentStyle, setCommentStyle] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    fontSize: 14
-  });
   const [commentStyle, setCommentStyle] = useState({
     bold: false,
     italic: false,
@@ -85,7 +73,7 @@ const App: React.FC = () => {
     const stage = e.target.getStage();
     if (!stage || !selectedTool) return;
 
-    // Don't create shape if clicking on existing shape (but allow clicking on image)
+    // Allow clicks on stage or image
     if (e.target !== stage && e.target.getClassName() !== 'Image') return;
 
     const pos = stage.getPointerPosition();
@@ -589,12 +577,6 @@ const App: React.FC = () => {
                   bold: false,
                   italic: false,
                   underline: false,
-                  fontSize: 14
-                });
-                setCommentStyle({
-                  bold: false,
-                  italic: false,
-                  underline: false,
                   fontSize: 12
                 });
               }}
@@ -644,29 +626,31 @@ const App: React.FC = () => {
       )}
 
       {currentView === 'patient' && (
-        <div className="shapes-list">
-          <h4>📝 Doctor's Annotations ({shapes.length})</h4>
-          {shapes.length === 0 ? (
-            <p className="no-shapes">No annotations available. Your doctor hasn't added any comments yet.</p>
-          ) : (
-            <div className="shapes-grid">
-              {shapes.map(shape => (
-                <div key={shape.id} className="shape-item">
-                  <span className="shape-info">
-                    {shape.type === 'circle' ? '⭕' : '⬜'} 
-                    {shape.comment || 'No comment'}
-                  </span>
-                  <button 
-                    onClick={() => handleShapeClick(shape.id)}
-                    className="btn btn-primary"
-                    style={{ fontSize: '0.8rem', padding: '5px 10px' }}
-                  >
-                    {shape.showComment ? '👁️ Hide' : '👁️ Show'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="controls-bottom">
+          <div className="shapes-list">
+            <h4>📝 Doctor's Annotations ({shapes.length})</h4>
+            {shapes.length === 0 ? (
+              <p className="no-shapes">No annotations available. Your doctor hasn't added any comments yet.</p>
+            ) : (
+              <div className="shapes-grid">
+                {shapes.map(shape => (
+                  <div key={shape.id} className="shape-item">
+                    <span className="shape-info">
+                      {shape.type === 'circle' ? '⭕' : '⬜'} 
+                      {shape.comment || 'No comment'}
+                    </span>
+                    <button 
+                      onClick={() => handleShapeClick(shape.id)}
+                      className="btn btn-primary"
+                      style={{ fontSize: '0.8rem', padding: '5px 10px' }}
+                    >
+                      {shape.showComment ? '👁️ Hide' : '👁️ Show'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
