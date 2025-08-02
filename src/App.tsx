@@ -288,6 +288,7 @@ const App: React.FC = () => {
     setShapes([]);
     setShowCommentBox(false);
     setSelectedShape(null);
+    setShowFloatingToolbar(false);
     setCommentText('');
     setCommentStyle({
       bold: false,
