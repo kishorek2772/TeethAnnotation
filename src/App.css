@@ -210,46 +210,47 @@
   font-size: 1.2rem;
 }
 
-.formatting-toolbar {
+.comprehensive-toolbar {
   display: flex;
-  gap: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
-  margin-bottom: 15px;
-  padding: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
 }
 
-.format-group {
+.toolbar-group {
   display: flex;
-  gap: 5px;
+  gap: 3px;
   align-items: center;
+  padding: 0 8px;
+  border-right: 1px solid #d1d5db;
 }
 
-.format-group label {
-  font-size: 0.9rem;
-  color: #374151;
-  margin-right: 5px;
+.toolbar-group:last-child {
+  border-right: none;
 }
 
 .format-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e5e7eb;
   background: white;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
 }
 
 .format-btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .format-btn.active {
@@ -258,28 +259,15 @@
   border-color: #3b82f6;
 }
 
-.font-size-select {
-  padding: 4px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background: white;
-  cursor: pointer;
-}
-
-.font-size-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
 .font-family-select {
-  padding: 4px 8px;
+  padding: 6px 10px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 0.9rem;
   background: white;
   cursor: pointer;
-  min-width: 120px;
+  min-width: 140px;
+  height: 32px;
 }
 
 .font-family-select:focus {
@@ -288,7 +276,8 @@
 }
 
 .font-size-input {
-  width: 50px;
+  width: 45px;
+  height: 32px;
   padding: 4px 6px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -303,10 +292,23 @@
 }
 
 .size-btn {
-  width: 28px !important;
-  height: 28px !important;
-  font-size: 16px;
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 16px !important;
   font-weight: bold;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.size-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .color-picker {
@@ -317,10 +319,11 @@
   cursor: pointer;
   background: none;
   padding: 0;
+  overflow: hidden;
 }
 
 .color-picker:hover {
-  border-color: #9ca3af;
+  border-color: #cbd5e1;
 }
 
 .comment-textarea {

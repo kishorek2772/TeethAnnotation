@@ -510,9 +510,57 @@ const App: React.FC = () => {
         <div className="comment-box">
           <h4>Add Comment</h4>
           
-          {/* Formatting Toolbar */}
-          <div className="formatting-toolbar">
-            <div className="format-group">
+          {/* Comprehensive Formatting Toolbar */}
+          <div className="comprehensive-toolbar">
+            {/* Font Family */}
+            <div className="toolbar-group">
+              <select
+                value={commentStyle.fontFamily}
+                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontFamily: e.target.value }))}
+                className="font-family-select"
+                title="Font Family"
+              >
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Roboto">Roboto</option>
+              </select>
+            </div>
+
+            {/* Font Size Controls */}
+            <div className="toolbar-group">
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, fontSize: Math.max(8, prev.fontSize - 1) }))}
+                className="size-btn"
+                title="Decrease Font Size"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                value={commentStyle.fontSize}
+                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontSize: Math.max(8, Math.min(72, parseInt(e.target.value) || 12)) }))}
+                className="font-size-input"
+                min="8"
+                max="72"
+                title="Font Size"
+              />
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, fontSize: Math.min(72, prev.fontSize + 1) }))}
+                className="size-btn"
+                title="Increase Font Size"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Text Formatting */}
+            <div className="toolbar-group">
               <button
                 type="button"
                 onClick={() => setCommentStyle(prev => ({ ...prev, bold: !prev.bold }))}
@@ -537,24 +585,69 @@ const App: React.FC = () => {
               >
                 <u>U</u>
               </button>
+              <input
+                type="color"
+                value={commentStyle.textColor}
+                onChange={(e) => setCommentStyle(prev => ({ ...prev, textColor: e.target.value }))}
+                className="color-picker"
+                title="Text Color"
+              />
             </div>
-            
-            <div className="format-group">
-              <label htmlFor="fontSize">Size:</label>
-              <select
-                id="fontSize"
-                value={commentStyle.fontSize}
-                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontSize: parseInt(e.target.value) }))}
-                className="font-size-select"
+
+            {/* Text Alignment */}
+            <div className="toolbar-group">
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'left' }))}
+                className={`format-btn ${commentStyle.textAlign === 'left' ? 'active' : ''}`}
+                title="Align Left"
               >
-                <option value={10}>10px</option>
-                <option value={12}>12px</option>
-                <option value={14}>14px</option>
-                <option value={16}>16px</option>
-                <option value={18}>18px</option>
-                <option value={20}>20px</option>
-                <option value={24}>24px</option>
-              </select>
+                ≡
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'center' }))}
+                className={`format-btn ${commentStyle.textAlign === 'center' ? 'active' : ''}`}
+                title="Align Center"
+              >
+                ≣
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'right' }))}
+                className={`format-btn ${commentStyle.textAlign === 'right' ? 'active' : ''}`}
+                title="Align Right"
+              >
+                ≡
+              </button>
+            </div>
+
+            {/* Additional Tools */}
+            <div className="toolbar-group">
+              <button
+                type="button"
+                onClick={() => setCommentText('')}
+                className="format-btn"
+                title="Clear Text"
+              >
+                🗑️
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommentStyle({
+                  bold: false,
+                  italic: false,
+                  underline: false,
+                  fontSize: 12,
+                  fontFamily: 'Arial',
+                  textAlign: 'left',
+                  textColor: '#000000'
+                })}
+                className="format-btn"
+                title="Reset Formatting"
+              >
+                ↺
+              </button>
             </div>
           </div>
           
