@@ -288,7 +288,6 @@ const App: React.FC = () => {
     setShapes([]);
     setShowCommentBox(false);
     setSelectedShape(null);
-    setShowFloatingToolbar(false);
     setCommentText('');
     setCommentStyle({
       bold: false,
@@ -537,147 +536,6 @@ const App: React.FC = () => {
         <div className="comment-box">
           <h4>Add Comment</h4>
           
-          {/* Comprehensive Formatting Toolbar */}
-          <div className="comprehensive-toolbar">
-            {/* Font Family */}
-            <div className="toolbar-group">
-              <select
-                value={commentStyle.fontFamily}
-                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontFamily: e.target.value }))}
-                className="font-family-select"
-                title="Font Family"
-              >
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Roboto">Roboto</option>
-              </select>
-            </div>
-
-            {/* Font Size Controls */}
-            <div className="toolbar-group">
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, fontSize: Math.max(8, prev.fontSize - 1) }))}
-                className="size-btn"
-                title="Decrease Font Size"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                value={commentStyle.fontSize}
-                onChange={(e) => setCommentStyle(prev => ({ ...prev, fontSize: Math.max(8, Math.min(72, parseInt(e.target.value) || 12)) }))}
-                className="font-size-input"
-                min="8"
-                max="72"
-                title="Font Size"
-              />
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, fontSize: Math.min(72, prev.fontSize + 1) }))}
-                className="size-btn"
-                title="Increase Font Size"
-              >
-                +
-              </button>
-            </div>
-
-            {/* Text Formatting */}
-            <div className="toolbar-group">
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, bold: !prev.bold }))}
-                className={`format-btn ${commentStyle.bold ? 'active' : ''}`}
-                title="Bold"
-              >
-                <strong>B</strong>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, italic: !prev.italic }))}
-                className={`format-btn ${commentStyle.italic ? 'active' : ''}`}
-                title="Italic"
-              >
-                <em>I</em>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, underline: !prev.underline }))}
-                className={`format-btn ${commentStyle.underline ? 'active' : ''}`}
-                title="Underline"
-              >
-                <u>U</u>
-              </button>
-              <input
-                type="color"
-                value={commentStyle.textColor}
-                onChange={(e) => setCommentStyle(prev => ({ ...prev, textColor: e.target.value }))}
-                className="color-picker"
-                title="Text Color"
-              />
-            </div>
-
-            {/* Text Alignment */}
-            <div className="toolbar-group">
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'left' }))}
-                className={`format-btn ${commentStyle.textAlign === 'left' ? 'active' : ''}`}
-                title="Align Left"
-              >
-                ≡
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'center' }))}
-                className={`format-btn ${commentStyle.textAlign === 'center' ? 'active' : ''}`}
-                title="Align Center"
-              >
-                ≣
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommentStyle(prev => ({ ...prev, textAlign: 'right' }))}
-                className={`format-btn ${commentStyle.textAlign === 'right' ? 'active' : ''}`}
-                title="Align Right"
-              >
-                ≡
-              </button>
-            </div>
-
-            {/* Additional Tools */}
-            <div className="toolbar-group">
-              <button
-                type="button"
-                onClick={() => setCommentText('')}
-                className="format-btn"
-                title="Clear Text"
-              >
-                🗑️
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommentStyle({
-                  bold: false,
-                  italic: false,
-                  underline: false,
-                  fontSize: 12,
-                  fontFamily: 'Arial',
-                  textAlign: 'left',
-                  textColor: '#000000'
-                })}
-                className="format-btn"
-                title="Reset Formatting"
-              >
-                ↺
-              </button>
-            </div>
-          </div>
-          
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -701,6 +559,7 @@ const App: React.FC = () => {
               onClick={() => {
                 setShowCommentBox(false);
                 setSelectedShape(null);
+                setShowFloatingToolbar(false);
                 setCommentText('');
                 setCommentStyle({
                   bold: false,
