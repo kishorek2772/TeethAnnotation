@@ -98,10 +98,7 @@ const App: React.FC = () => {
           bold: false,
           italic: false,
           underline: false,
-          fontSize: 12,
-          fontFamily: 'Arial',
-          textAlign: 'left' as 'left' | 'center' | 'right',
-          textColor: '#000000'
+          fontSize: 12
         },
         showComment: false,
       };
@@ -121,10 +118,7 @@ const App: React.FC = () => {
           bold: false,
           italic: false,
           underline: false,
-          fontSize: 12,
-          fontFamily: 'Arial',
-          textAlign: 'left' as 'left' | 'center' | 'right',
-          textColor: '#000000'
+          fontSize: 12
         },
         showComment: false,
       };
@@ -214,10 +208,7 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12,
-      fontFamily: 'Arial',
-      textAlign: 'left' as 'left' | 'center' | 'right',
-      textColor: '#000000'
+      fontSize: 12
     });
   };
 
@@ -248,10 +239,7 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12,
-      fontFamily: 'Arial',
-      textAlign: 'left' as 'left' | 'center' | 'right',
-      textColor: '#000000'
+      fontSize: 12
     });
   };
 
@@ -265,10 +253,7 @@ const App: React.FC = () => {
         bold: false,
         italic: false,
         underline: false,
-        fontSize: 12,
-        fontFamily: 'Arial',
-        textAlign: 'left' as 'left' | 'center' | 'right',
-        textColor: '#000000'
+        fontSize: 12
       });
     }
   };
@@ -282,10 +267,7 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12,
-      fontFamily: 'Arial',
-      textAlign: 'left' as 'left' | 'center' | 'right',
-      textColor: '#000000'
+      fontSize: 12
     });
   };
 
@@ -585,7 +567,10 @@ const App: React.FC = () => {
               fontWeight: commentStyle.bold ? 'bold' : 'normal',
               fontStyle: commentStyle.italic ? 'italic' : 'normal',
               textDecoration: commentStyle.underline ? 'underline' : 'none',
-              fontSize: `${commentStyle.fontSize}px`
+              fontSize: `${commentStyle.fontSize}px`,
+              fontFamily: commentStyle.fontFamily,
+              textAlign: commentStyle.textAlign,
+              color: commentStyle.textColor
             }}
           />
           <div className="comment-actions">
@@ -601,10 +586,7 @@ const App: React.FC = () => {
                   bold: false,
                   italic: false,
                   underline: false,
-                  fontSize: 12,
-                  fontFamily: 'Arial',
-                  textAlign: 'left' as 'left' | 'center' | 'right',
-                  textColor: '#000000'
+                  fontSize: 12
                 });
               }}
               className="btn btn-secondary"
