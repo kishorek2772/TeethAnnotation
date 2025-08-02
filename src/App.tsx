@@ -98,7 +98,10 @@ const App: React.FC = () => {
           bold: false,
           italic: false,
           underline: false,
-          fontSize: 12
+          fontSize: 12,
+          fontFamily: 'Arial',
+          textAlign: 'left' as 'left' | 'center' | 'right',
+          textColor: '#000000'
         },
         showComment: false,
       };
@@ -118,7 +121,10 @@ const App: React.FC = () => {
           bold: false,
           italic: false,
           underline: false,
-          fontSize: 12
+          fontSize: 12,
+          fontFamily: 'Arial',
+          textAlign: 'left' as 'left' | 'center' | 'right',
+          textColor: '#000000'
         },
         showComment: false,
       };
@@ -208,7 +214,10 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12
+      fontSize: 12,
+      fontFamily: 'Arial',
+      textAlign: 'left' as 'left' | 'center' | 'right',
+      textColor: '#000000'
     });
   };
 
@@ -239,7 +248,10 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12
+      fontSize: 12,
+      fontFamily: 'Arial',
+      textAlign: 'left' as 'left' | 'center' | 'right',
+      textColor: '#000000'
     });
   };
 
@@ -253,7 +265,10 @@ const App: React.FC = () => {
         bold: false,
         italic: false,
         underline: false,
-        fontSize: 12
+        fontSize: 12,
+        fontFamily: 'Arial',
+        textAlign: 'left' as 'left' | 'center' | 'right',
+        textColor: '#000000'
       });
     }
   };
@@ -267,7 +282,10 @@ const App: React.FC = () => {
       bold: false,
       italic: false,
       underline: false,
-      fontSize: 12
+      fontSize: 12,
+      fontFamily: 'Arial',
+      textAlign: 'left' as 'left' | 'center' | 'right',
+      textColor: '#000000'
     });
   };
 
@@ -583,7 +601,10 @@ const App: React.FC = () => {
                   bold: false,
                   italic: false,
                   underline: false,
-                  fontSize: 12
+                  fontSize: 12,
+                  fontFamily: 'Arial',
+                  textAlign: 'left' as 'left' | 'center' | 'right',
+                  textColor: '#000000'
                 });
               }}
               className="btn btn-secondary"
