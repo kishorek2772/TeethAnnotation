@@ -41,11 +41,31 @@ const App: React.FC = () => {
     textColor: '#000000'
   });
   const [showCommentBox, setShowCommentBox] = useState(false);
+  const [showFloatingToolbar, setShowFloatingToolbar] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentShape, setCurrentShape] = useState<Shape | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
+
+  // Load sample teeth image on component mount
+  React.useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      const maxWidth = 800;
+      const maxHeight = 600;
+      const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+      
+      setStageSize({
+        width: img.width * ratio,
+        height: img.height * ratio
+      });
+      
+      setUploadedImage(img);
+    };
+    img.src = 'https://images.pexels.com/photos/6812540/pexels-photo-6812540.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop';
+  }, []);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -200,9 +220,15 @@ const App: React.FC = () => {
       return;
     }
     
+    // Show floating toolbar near the clicked shape
+    const shape = shapes.find(s => s.id === shapeId);
+    if (shape) {
+      setToolbarPosition({ x: shape.x + 50, y: shape.y - 60 });
+      setShowFloatingToolbar(true);
+    }
+    
     setSelectedShape(shapeId);
     setShowCommentBox(true);
-    const shape = shapes.find(s => s.id === shapeId);
     setCommentText(shape?.comment || '');
     setCommentStyle(shape?.commentStyle || {
       bold: false,
