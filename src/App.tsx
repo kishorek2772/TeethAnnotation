@@ -17,6 +17,9 @@ interface Shape {
     italic: boolean;
     underline: boolean;
     fontSize: number;
+    fontFamily: string;
+    textAlign: 'left' | 'center' | 'right';
+    textColor: string;
   };
   showComment: boolean;
 }
@@ -32,7 +35,10 @@ const App: React.FC = () => {
     bold: false,
     italic: false,
     underline: false,
-    fontSize: 12
+    fontSize: 12,
+    fontFamily: 'Arial',
+    textAlign: 'left' as 'left' | 'center' | 'right',
+    textColor: '#000000'
   });
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
