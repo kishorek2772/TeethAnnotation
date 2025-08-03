@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Stage, Layer, Circle, Rect, Text, Group, Image as KonvaImage } from 'react-konva';
+import { Stage, Layer, Circle, Rect, Text, Group, Image as KonvaImage, Line } from 'react-konva';
 import Konva from 'konva';
 import './App.css';
 
@@ -22,6 +22,7 @@ interface Shape {
     textColor: string;
   };
   showComment: boolean;
+  commentPosition?: { x: number; y: number };
 }
 
 const App: React.FC = () => {
@@ -252,9 +253,20 @@ const App: React.FC = () => {
   const applyComment = () => {
     if (!selectedShape) return;
 
+    const shape = shapes.find(s => s.id === selectedShape);
+    const defaultCommentPosition = shape ? {
+      x: shape.x + (shape.radius || shape.width || 40) + 20,
+      y: shape.y - 20
+    } : { x: 0, y: 0 };
     setShapes(prev => prev.map(shape => 
       shape.id === selectedShape 
-        ? { ...shape, comment: commentText, commentStyle: commentStyle, showComment: true }
+        ? { 
+            ...shape, 
+            comment: commentText, 
+            commentStyle: commentStyle, 
+            showComment: true,
+            commentPosition: shape.commentPosition || defaultCommentPosition
+          }
         : shape
     ));
 
@@ -267,6 +279,41 @@ const App: React.FC = () => {
       underline: false,
       fontSize: 12
     });
+  };
+
+  const handleCommentDragEnd = (shapeId: string, newPos: { x: number; y: number }) => {
+    // Disable dragging in patient view
+    if (currentView === 'patient') return;
+    
+    setShapes(prev => prev.map(shape => 
+      shape.id === shapeId 
+        ? { ...shape, commentPosition: newPos }
+        : shape
+    ));
+  };
+
+  // Helper function to get shape center point
+  const getShapeCenter = (shape: Shape) => {
+    if (shape.type === 'circle') {
+      return { x: shape.x, y: shape.y };
+    } else {
+      return { 
+        x: shape.x + (shape.width || 40) / 2, 
+        y: shape.y + (shape.height || 30) / 2 
+      };
+    }
+  };
+
+  // Helper function to get comment position
+  const getCommentPosition = (shape: Shape) => {
+    if (shape.commentPosition) {
+      return shape.commentPosition;
+    }
+    // Default position
+    return {
+      x: shape.x + (shape.radius || shape.width || 40) + 20,
+      y: shape.y - 20
+    };
   };
 
   const deleteShape = (shapeId: string) => {
@@ -458,9 +505,65 @@ const App: React.FC = () => {
                 {/* Render comment if exists */}
                 {((currentView === 'doctor' && shape.showComment) || (currentView === 'patient' && shape.showComment)) && shape.comment && (
                   <Group>
+                    {/* Arrow connecting shape to comment */}
+                    {(() => {
+                      const shapeCenter = getShapeCenter(shape);
+                      const commentPos = getCommentPosition(shape);
+                      const commentWidth = Math.max(shape.comment.length * 8, 100);
+                      const commentHeight = 30;
+                      
+                      // Calculate arrow start and end points
+                      const arrowStart = shapeCenter;
+                      const arrowEnd = {
+                        x: commentPos.x + commentWidth / 2,
+                        y: commentPos.y + commentHeight / 2
+                      };
+                      
+                      // Calculate arrow head points
+                      const angle = Math.atan2(arrowEnd.y - arrowStart.y, arrowEnd.x - arrowStart.x);
+                      const arrowLength = 10;
+                      const arrowAngle = Math.PI / 6;
+                      
+                      const arrowHead1 = {
+                        x: arrowEnd.x - arrowLength * Math.cos(angle - arrowAngle),
+                        y: arrowEnd.y - arrowLength * Math.sin(angle - arrowAngle)
+                      };
+                      
+                      const arrowHead2 = {
+                        x: arrowEnd.x - arrowLength * Math.cos(angle + arrowAngle),
+                        y: arrowEnd.y - arrowLength * Math.sin(angle + arrowAngle)
+                      };
+                      
+                      return (
+                        <Group>
+                          {/* Arrow line */}
+                          <Line
+                            points={[arrowStart.x, arrowStart.y, arrowEnd.x, arrowEnd.y]}
+                            stroke="#666"
+                            strokeWidth={2}
+                            dash={[5, 5]}
+                          />
+                          {/* Arrow head */}
+                          <Line
+                            points={[
+                              arrowEnd.x, arrowEnd.y,
+                              arrowHead1.x, arrowHead1.y,
+                              arrowEnd.x, arrowEnd.y,
+                              arrowHead2.x, arrowHead2.y
+                            ]}
+                            stroke="#666"
+                            strokeWidth={2}
+                            lineCap="round"
+                            lineJoin="round"
+                          />
+                        </Group>
+                      );
+                    })()}
+                    
+                    {/* Comment box */}
                     <Rect
-                      x={shape.x + (shape.radius || shape.width || 40) + 10}
-                      y={shape.y - 10}
+                      x={getCommentPosition(shape).x}
+                      y={getCommentPosition(shape).y}
                       width={Math.max(shape.comment.length * 8, 100)}
                       height={30}
                       fill="white"
@@ -470,18 +573,23 @@ const App: React.FC = () => {
                       shadowColor="black"
                       shadowBlur={5}
                       shadowOpacity={0.3}
+                      draggable={currentView === 'doctor'}
+                      onDragEnd={(e) => handleCommentDragEnd(shape.id, e.target.position())}
                     />
                     <Text
                       text={shape.comment}
-                      x={shape.x + (shape.radius || shape.width || 40) + 15}
-                      y={shape.y - 5}
+                      x={getCommentPosition(shape).x + 5}
+                      y={getCommentPosition(shape).y + 5}
                       fontSize={shape.commentStyle.fontSize}
-                      fontFamily="Arial"
-                      fill="#333"
+                      fontFamily={shape.commentStyle.fontFamily}
+                      fill={shape.commentStyle.textColor}
                       width={Math.max(shape.comment.length * 8, 90)}
                       fontStyle={shape.commentStyle.italic ? 'italic' : 'normal'}
                       textDecoration={shape.commentStyle.underline ? 'underline' : ''}
-                      fontVariant={shape.commentStyle.bold ? 'bold' : 'normal'}
+                      fontStyle={`${shape.commentStyle.bold ? 'bold' : 'normal'} ${shape.commentStyle.italic ? 'italic' : 'normal'}`}
+                      align={shape.commentStyle.textAlign}
+                      draggable={currentView === 'doctor'}
+                      onDragEnd={(e) => handleCommentDragEnd(shape.id, e.target.position())}
                     />
                   </Group>
                 )}
