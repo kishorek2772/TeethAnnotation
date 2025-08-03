@@ -295,11 +295,11 @@ const App: React.FC = () => {
   // Helper function to get shape center point
   const getShapeCenter = (shape: Shape) => {
     if (shape.type === 'circle') {
-      return { x: shape.x, y: shape.y };
+      return { x: shape.x, y: shape.y - (shape.radius || 20) };
     } else {
       return { 
-        x: shape.x + (shape.width || 40) / 2, 
-        y: shape.y + (shape.height || 30) / 2 
+        x: shape.x + (shape.width || 40) / 2,
+        y: shape.y
       };
     }
   };
