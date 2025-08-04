@@ -261,8 +261,8 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
           </button>
 
           {/* STYLING CONTROLS */}
+                       textAlign: textAlign,
           <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
-            <button
               onClick={() => setIsBold(!isBold)}
               style={{
                 fontWeight: 'bold',
@@ -290,11 +290,59 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
                 textDecoration: 'underline',
                 background: isUnderline ? '#ccc' : 'transparent',
                 border: 'none',
-                padding: '0 6px',
-              }}
-            >
-              U
-            </button>
+          {/* Formatting Controls for Selected Text */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <div className="text-xs text-gray-600 mb-2">Select text and apply formatting:</div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <button
+                onClick={() => applyFormatToSelection('bold')}
+                className={`px-2 py-1 text-xs rounded transition-colors ${isBold ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100'}`}
+                title="Bold selected text"
+              >
+                <Bold size={12} />
+              </button>
+              <button
+                onClick={() => applyFormatToSelection('italic')}
+                className={`px-2 py-1 text-xs rounded transition-colors ${isItalic ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100'}`}
+                title="Italic selected text"
+              >
+                <Italic size={12} />
+              </button>
+              <button
+                onClick={() => applyFormatToSelection('underline')}
+                className={`px-2 py-1 text-xs rounded transition-colors ${isUnderline ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100'}`}
+                title="Underline selected text"
+              >
+                <Underline size={12} />
+              </button>
+              
+              <div className="w-px h-4 bg-gray-300 mx-1"></div>
+              
+              <button
+                onClick={applyFontSizeToSelection}
+                className="px-2 py-1 text-xs bg-white hover:bg-gray-100 rounded transition-colors"
+                title="Apply font size to selected text"
+              >
+                Size: {fontSize}px
+              </button>
+              
+              <div className="w-px h-4 bg-gray-300 mx-1"></div>
+              
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => setTextColor(e.target.value)}
+                className="w-6 h-6 rounded border border-gray-300 cursor-pointer"
+                title="Text color for selection"
+              />
+              <button
+                onClick={applyColorToSelection}
+                className="px-2 py-1 text-xs bg-white hover:bg-gray-100 rounded transition-colors"
+                title="Apply color to selected text"
+              >
+                Color
+              </button>
+            </div>
           </div>
         </div>
       </div>
