@@ -44,6 +44,8 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [fontSize, setFontSize] = useState(15);
+  const [textColor, setTextColor] = useState('#000000');
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>('left');
   const [commentBoxPosition, setCommentBoxPosition] = useState<{ top: number; left: number }>({ top: 100, left: 100 });
   
   // Helper function to get shape top center point for arrow start
@@ -508,8 +510,5 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
           </button>
         </div>
       )}
-    </div>
-  );
-};
 
 export default AnnotationAppKonva;
