@@ -121,8 +121,6 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
     setIsItalic(shape.isItalic || false);
     setIsUnderline(shape.isUnderline || false);
     setFontSize(shape.fontSize || 15);
-   setTextColor('#000000');
-   setTextAlign('left');
     setShowCommentBox(true);
 
     // Position comment box near shape
