@@ -214,6 +214,18 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
     setShapes(updatedShapes);
   };
 
+  const applyFormatToSelection = (format: string) => {
+    // Placeholder function for format application
+  };
+
+  const applyColorToSelection = () => {
+    // Placeholder function for color application
+  };
+
+  const applyTextAlignment = (alignment: 'left' | 'center' | 'right') => {
+    setTextAlign(alignment);
+  };
+
   return (
     <div className="konva-wrapper" style={{ position: 'relative' }}>
       <div className="toolbar flex items-center gap-3 bg-white shadow px-4 py-2 rounded-md mb-4">
@@ -263,7 +275,10 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
           {/* STYLING CONTROLS */}
           <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
             <button
-              onClick={() => setIsBold(!isBold)}
+              onClick={() => {
+                setIsBold(!isBold);
+                applyFormatToSelection('bold');
+              }}
               style={{
                 fontWeight: 'bold',
                 background: isBold ? '#ccc' : 'transparent',
@@ -274,7 +289,10 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
               B
             </button>
             <button
-              onClick={() => setIsItalic(!isItalic)}
+              onClick={() => {
+                setIsItalic(!isItalic);
+                applyFormatToSelection('italic');
+              }}
               style={{
                 fontStyle: 'italic',
                 background: isItalic ? '#ccc' : 'transparent',
@@ -285,7 +303,10 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
               I
             </button>
             <button
-              onClick={() => setIsUnderline(!isUnderline)}
+              onClick={() => {
+                setIsUnderline(!isUnderline);
+                applyFormatToSelection('underline');
+              }}
               style={{
                 textDecoration: 'underline',
                 background: isUnderline ? '#ccc' : 'transparent',
@@ -296,6 +317,54 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
               U
             </button>
           </div>
+        </div>
+
+        <div className="w-px h-6 bg-gray-300 mx-2"></div>
+
+        {/* Text Color */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-600">Color:</label>
+          <input
+            type="color"
+            value={textColor}
+            onChange={(e) => setTextColor(e.target.value)}
+            className="w-8 h-8 rounded border border-gray-300 cursor-pointer"
+            title="Text color"
+          />
+          <button
+            onClick={applyColorToSelection}
+            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+            title="Apply color to selected text"
+          >
+            Apply
+          </button>
+        </div>
+
+        <div className="w-px h-6 bg-gray-300 mx-2"></div>
+
+        {/* Text Alignment */}
+        <div className="flex gap-1">
+          <button
+            onClick={() => applyTextAlignment('left')}
+            className={`p-2 rounded transition-colors ${textAlign === 'left' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            title="Align left"
+          >
+            ≡
+          </button>
+          <button
+            onClick={() => applyTextAlignment('center')}
+            className={`p-2 rounded transition-colors ${textAlign === 'center' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            title="Align center"
+          >
+            ≣
+          </button>
+          <button
+            onClick={() => applyTextAlignment('right')}
+            className={`p-2 rounded transition-colors ${textAlign === 'right' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            title="Align right"
+          >
+            ≡
+          </button>
         </div>
       </div>
 
@@ -495,14 +564,12 @@ const AnnotationAppKonva: React.FC<Props> = ({ initialImage, initialAnnotations,
           <button
             onClick={applyComment}
             style={{
-              marginTop: 10,
               width: '100%',
               background: '#e53935',
               color: '#fff',
               border: 'none',
               padding: 8,
               borderRadius: 4,
-              cursor: 'pointer',
               fontWeight: 'bold',
             }}
           >
